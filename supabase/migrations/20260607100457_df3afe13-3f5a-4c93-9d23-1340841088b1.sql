@@ -1,0 +1,2 @@
+ALTER TABLE public.reviews ADD COLUMN IF NOT EXISTS user_id uuid REFERENCES auth.users(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_reviews_user_company_created ON public.reviews(user_id, company_id, created_at DESC);
