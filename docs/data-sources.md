@@ -1,0 +1,81 @@
+# Data sources — verification log
+
+Checked 2026-08-23, per Phase 2's instruction to confirm each source's current download URL, format, and licence before writing its adapter. Re-verify before every ingestion run against a new release — these change between release years/quarters by design, and the adapters are built to fail loudly rather than silently accept a moved or reshaped file.
+
+**Verification method note:** `bls.gov`'s main website (including its bulk `oesm{YY}all.zip` files) returns HTTP 403 to this session's tools — confirmed as genuine server-side bot-protection (Akamai) via both the `WebFetch` tool and a direct `curl` from Bash, not a tool-specific limitation. `dol.gov` and `ons.gov.uk` are directly reachable and were fetched for real. BLS's separate **Time Series REST API** (`api.bls.gov`) is *not* behind the same block and was used instead — see §1. Nothing in this document is guessed; every URL below was hit directly this session (200 response, real content) except where explicitly marked otherwise.
+
+---
+
+## 1. US BLS — Occupational Employment and Wage Statistics (OEWS)
+
+| | |
+|---|---|
+| Landing page | `https://www.bls.gov/oes/` — blocked (403) to direct fetch from this session. |
+| Bulk file (production adapter target) | `https://www.bls.gov/oes/special-requests/oesm{YY}all.zip` (e.g. `oesm25all.zip` for the May 2025 release) — URL pattern confirmed via multiple independent citations across prior years; **not independently byte-fetched this session** (blocked). The real adapter (`bls-oews.ts`) targets this file and validates its shape (zip, expected sheet columns) before accepting it, and fails loudly rather than substituting anything if the fetch or shape-check fails. |
+| Verified working alternative: BLS Time Series API | `https://api.bls.gov/publicAPI/v2/timeseries/data/` — **confirmed live and reachable this session**, unregistered tier (25 series/request, 25 requests/day). Series ID format confirmed empirically against real responses: `OEUN` + 7-digit area (`0000000` = national) + 6-digit industry (`000000` = cross-industry) + 6-digit SOC code (no dash) + 2-digit datatype (`11`=annual p10, `12`=p25, `13`=median, `14`=p75, `15`=p90). Example verified live: series `OEUN000000000000015125213` (Software Developers, national, annual median) returned **$135,980 for 2025** on 2026-08-23. |
+| Latest available vintage | May 2025, released 2026-05-15 per BLS's own release calendar (`bls.gov/news.release/pdf/ocwage.pdf`). |
+| Licence | **Public domain** — U.S. federal government work (17 U.S.C. §105). BLS's own linking/copyright guidance: *"everything that [BLS] publishes... is in the public domain... users are free to use BLS public domain material without specific permission,"* with a (non-mandatory) request to cite BLS. Confidence: **high**. |
+| **Committed sample** | `data/samples/bls-oews-sample.csv` — **23 real occupations, national annual wage percentiles (p10/p25/p50/p75/p90), 2025 reference year**, pulled live from the API above (not the blocked bulk file). Reproducible via `scripts/fetch-bls-sample.mjs`. |
+
+## 2. US DOL OFLC — H-1B / LCA Disclosure Data
+
+| | |
+|---|---|
+| Landing page | `https://www.dol.gov/agencies/eta/foreign-labor/performance` — **fetched directly and confirmed live this session.** |
+| Current file (verified exact URL) | `https://www.dol.gov/media/LCA_Disclosure_Data_FY2026_Q3.xlsx` — confirmed live, `HTTP 200`, `content-length: 251,850,891` bytes (~240 MB), `content-type: .../spreadsheetml.sheet`, `last-modified: 2026-08-07`. Covers determinations from Oct 1 2025 – Jun 30 2026. |
+| Format | Excel (`.xlsx`), ~1.03M case rows. Header confirmed by direct read: `CASE_NUMBER, CASE_STATUS, RECEIVED_DATE, DECISION_DATE, ..., JOB_TITLE, SOC_CODE, SOC_TITLE, FULL_TIME_POSITION, ..., EMPLOYER_NAME, ..., WORKSITE_CITY, WORKSITE_COUNTY, WORKSITE_STATE, WORKSITE_POSTAL_CODE, WAGE_RATE_OF_PAY_FROM, WAGE_RATE_OF_PAY_TO, WAGE_UNIT_OF_PAY, PREVAILING_WAGE, ...` (99 columns total). The real adapter resolves column positions **by name** from the header row rather than hardcoding indices, since DOL has changed column order across fiscal years before. |
+| Geography | US worksite address. **The only source in this set with employer-level detail.** |
+| Licence | **Public domain** — same statutory basis as BLS. Confidence: **high**. |
+| Coverage bias | Covers only employers who filed a labor condition application for a visa-sponsored role (H-1B/H-1B1/E-3) — systematically skewed toward companies/roles that sponsor, says nothing about a company's non-sponsored roles. Every row from this source is tagged `confidence` reflecting this; Phase 3's UI must disclose the bias inline. |
+| **Committed sample** | `data/samples/dol-lca-sample.csv` — **3,038 real case rows**, sampled every 141st row across the full real 1.03M-row FY2026 Q3 file (not just the first N, to avoid clustering by submission date/employer), filtered to `Certified`/`Certified - Withdrawn` status with a usable numeric wage. Reproducible via `scripts/extract-lca-sample.mjs` (full file downloaded, sampled, then discarded — not committed at its real ~240 MB size). |
+
+## 3. UK ONS — Annual Survey of Hours and Earnings (ASHE), Table 14 (occupation, 4-digit SOC)
+
+| | |
+|---|---|
+| Landing page | `https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/datasets/occupation4digitsoc2010ashetable14` — **fetched directly and confirmed live this session.** (Note: ASHE "Table 1", initially checked, is UK-wide-aggregate only, one row; Table 14 is the occupation-level breakdown actually needed for `salary_benchmarks` and is what the adapter targets.) |
+| Current file (verified exact URL) | `https://www.ons.gov.uk/file?uri=/employmentandlabourmarket/peopleinwork/earningsandworkinghours/datasets/occupation4digitsoc2010ashetable14/2025provisional/ashetable142025provisional.zip` — confirmed live, downloaded (~11 MB), contains 22 Excel workbooks (weekly/hourly/annual pay × basic/overtime/total hours, each with a "CV" quality-flag companion file). The adapter uses `...Table 14.7a Annual pay - Gross 2025.xlsx`. |
+| Format | Excel inside zip. One sheet per breakdown (`All`, `Male`, `Female`, `Full-Time`, `Part-Time`, etc.); the `All` sheet has one row per SOC code (1-, 2-, 3-, and 4-digit hierarchy mixed in the same sheet) with columns for job count, median, mean, and percentiles 10/20/25/30/40/60/70/75/80/90. |
+| Geography | UK-wide, occupation only — no sub-national region and no employer detail in Table 14 (ONS publishes a separate region×occupation Table 15 if that's ever wanted). |
+| Licence | **Open Government Licence v3.0** — stated directly on the page. Confidence: **high**. |
+| Reliability suppression (ONS's own, worth mirroring) | ONS marks low-reliability cells `"x"` (CV > 20%) or blank for disclosure-control reasons rather than publishing a shaky number — the adapter drops any row missing a required percentile rather than guessing, same principle this pipeline's own `confidence`/suppression logic applies elsewhere. |
+| **Committed sample** | `data/samples/ons-ashe-sample.csv` — **52 real 4-digit-SOC occupation rows**, 2025 provisional, annual gross pay percentiles. Every non-suppressed 4-digit row in the real file was kept (the full real file has ~560 rows across all hierarchy levels; 52 pass the "4-digit and fully reported" filter). Reproducible via `scripts/extract-ashe-sample.mjs`. |
+
+## 4. O\*NET Database (taxonomy only — not a pay source)
+
+| | |
+|---|---|
+| Landing page | `https://www.onetcenter.org/database.html` — **fetched directly and confirmed live this session.** |
+| Current version | **O\*NET 30.3** |
+| Files used (verified exact URLs, both downloaded in full) | `https://www.onetcenter.org/dl_files/database/db_30_3_csv/occupation_data.csv` (1,016 occupations: SOC code, title, description) and `.../sample_of_reported_titles.csv` (7,953 real alternate/reported job titles mapped to SOC codes — exactly the alias data the title-normalizer needs). Both committed **in full** (268 KB and 579 KB — small enough, and partial taxonomy would cause false "no match" results for excluded codes). |
+| Licence | **Creative Commons Attribution 4.0 International** — stated directly: credit "the O\*NET 30.3 Database and U.S. Department of Labor/ETA," link the licence, note modifications. Confidence: **high**. This document + `data/onet/` constitute that attribution. |
+| Usage here | Occupation taxonomy and free-text-title → SOC-code normalization **only**, per the brief — never used as a pay source. |
+
+---
+
+## 5. India — explicit non-coverage
+
+No adapter is implemented for India. Per the brief: *"there is no open, employer-level salary dataset for India... Do not fabricate Indian employer salary data, do not extrapolate US figures into INR, and do not present a bare currency conversion as local market data."* MoSPI's Periodic Labour Force Survey (PLFS) exists and gives broad occupation/sector *bands*, not employer-level or percentile-distribution figures compatible with this pipeline's schema — evaluated and rejected as a `salary_benchmarks` source for this reason, not overlooked. The aggregation layer (`src/modules/ingestion/aggregate.ts`) has no default/fallback numeric value for an occupation+geography with zero real rows — it returns "no data," never a guess. The product's coverage-honesty UI requirement (say so plainly, fall back to user submissions) is a Phase 3 responsibility.
+
+---
+
+## 6. Cross-taxonomy occupation matching — a measured limitation, not a claimed solution
+
+The occupation normalizer (`src/modules/ingestion/occupation-normalizer.ts`) maps free-text titles onto O\*NET SOC codes via exact/alias lookup, then two fuzzy fallbacks: character-level edit distance (good for typos on the *same* title) and stemmed token overlap (needed for ASHE's UK titles, which are worded completely differently from O\*NET's — e.g. "Programmers and software development professionals" vs. "Software Developers"). Both DOL LCA (which ships real O\*NET SOC codes directly) and BLS OEWS (whose 6-digit codes map onto O\*NET's `.00` entries by a well-established, non-fuzzy convention) match reliably. **UK ASHE is the hard case**, because UK SOC 2020 and the US-built O\*NET taxonomy are independent classifications with no code-level crosswalk.
+
+Measured against the real, full committed ASHE sample (52 real 4-digit-SOC rows): **13 of 52 (25%) cross-match** at the token-overlap thresholds currently set (0.75 overlap coefficient, ≥2 shared stemmed tokens, ≥6-char minimum token length). That threshold was tuned *down* from a looser setting that matched 30/52 but included clear misclassifications (e.g. "Social workers" incorrectly matching "Social Scientists and Related Workers, All Other" on shared generic words) — the conservative setting was chosen deliberately, trading recall for not mislabeling a row, consistent with this whole pipeline's "suppress rather than guess" posture. Even at the conservative setting, at least one residual false positive is known ("Social workers" still matches "Social Scientists..." because both real, substantive-looking words happen to co-occur) — flagged here rather than hidden.
+
+**This is a real limitation of a heuristic, not a solved problem.** A production system serious about UK coverage would want a maintained UK-SOC↔O\*NET (or UK-SOC↔ISCO) crosswalk table, or an embeddings-based matcher — both meaningfully better than string/token heuristics for this specific cross-national-taxonomy problem. That's flagged as a follow-up, not attempted here.
+
+---
+
+## Sample dataset summary
+
+| Source | File | Real rows | How obtained |
+|---|---|---|---|
+| BLS OEWS | `data/samples/bls-oews-sample.csv` | 23 | Live BLS Time Series API call (bulk file blocked in this environment) |
+| DOL LCA | `data/samples/dol-lca-sample.csv` | 3,038 | Sampled from the real, full FY2026 Q3 disclosure file (240 MB, downloaded and discarded) |
+| ONS ASHE | `data/samples/ons-ashe-sample.csv` | 52 | Filtered from the real, full 2025 provisional Table 14 file |
+| O\*NET taxonomy | `data/onet/occupation_data.csv`, `data/onet/sample_of_reported_titles.csv` | 1,016 + 7,953 | Full real files, committed whole |
+
+Every number in every sample file is real data pulled live from its source this session — none of it is synthesized or hand-typed. The extraction scripts in `scripts/` are the reproducible recipe for regenerating each sample against a newer release.

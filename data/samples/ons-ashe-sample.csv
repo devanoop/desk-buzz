@@ -1,0 +1,53 @@
+soc_code,title,sample_size_thousands,p10,p25,p50,p75,p90
+1121,"Production managers and directors in manufacturing",479,12576,33691,52885,79741,115012
+1131,"Financial managers and directors",430,15555,37887,65336,107741,180401
+1132,"Marketing, sales and advertising directors",216,36561,60138,90000,131906,179747
+1150,"Managers and directors in retail and wholesale",336,19930,27540,36006,49897,73084
+2132,"IT managers",213,31630,43046,55502,73026,95712
+2133,"IT business analysts, architects and systems designers",168,34336,45013,59593,80881,99939
+2134,"Programmers and software development professionals",360,30752,41141,55587,75077,101172
+2212,"Specialist medical practitioners",187,41974,61823,88997,127271,163434
+2234,"Nurse practitioners",114,23126,30945,41392,50139,58540
+2237,"Other nursing professionals",720,10708,24960,36775,45742,54827
+2311,"Higher education teaching professionals",246,12865,30275,46494,62547,75466
+2313,"Secondary education teaching professionals",466,21640,33464,44246,52098,60615
+2314,"Primary education teaching professionals",400,19713,30407,42031,49898,57904
+2431,"Management consultants and business analysts",241,28359,37901,51729,68392,90835
+2440,"Business and financial project management professionals",291,30952,44000,57874,76195,97045
+2461,"Social workers",105,24877,35841,42708,48907,54862
+3119,"Science, engineering and production technicians n.e.c.",146,20295,26953,34475,45179,55707
+3132,"IT user support technicians",152,23820,27882,34314,43911,55710
+3229,"Welfare and housing associate professionals n.e.c.",146,12324,19304,26640,32866,37390
+3232,"Early education and childcare practitioners",109,10091,13622,19516,24510,28216
+3556,"Sales accounts and business development managers",415,30021,40920,56021,78507,105797
+3574,"Other vocational and industrial trainers",125,16497,26151,33236,43088,51500
+4111,"National government administrative occupations",131,18825,27228,31363,40534,46663
+4122,"Book-keepers, payroll managers and wages clerks",272,10000,19148,27743,35464,45998
+4131,"Records clerks and assistants",139,13835,19885,26312,31529,37749
+4141,"Office managers",195,14924,25607,35000,47154,58804
+4159,"Other administrative occupations n.e.c.",728,8840,13356,23385,29774,37975
+4215,"Personal assistants and other secretaries",164,5965,12103,25233,36179,48675
+4216,"Receptionists",185,8890,12706,18152,24212,29496
+5223,"Metal working production and maintenance fitters",223,22878,29947,40002,51441,63241
+5231,"Vehicle technicians, mechanics and electricians",98,21999,28667,36560,44299,52385
+5241,"Electricians and electrical fitters",97,23616,30899,39187,48416,57280
+5434,"Chefs",152,11698,17587,26531,33245,40597
+6112,"Teaching assistants",255,9046,13660,18024,21468,25152
+6113,"Educational support assistants",138,8024,12883,17086,20769,25457
+6131,"Nursing auxiliaries and assistants",466,9547,16283,24761,30410,35661
+6135,"Care workers and home carers",581,6429,13341,21487,28556,34529
+6136,"Senior care workers",101,13987,21440,27417,32059,37644
+7111,"Sales and retail assistants",895,5709,9734,14491,21774,27733
+7132,"Sales supervisors - retail and wholesale",85,13139,19093,26112,32201,38221
+7219,"Customer service occupations n.e.c.",299,8538,15623,24438,29745,37199
+8111,"Food, drink and tobacco process operatives",147,15598,22837,27267,33002,39705
+8211,"Large goods vehicle drivers",204,24708,32510,39141,46326,52634
+8212,"Bus and coach drivers",83,14546,27639,33947,42200,49429
+8214,"Delivery drivers and couriers",126,9995,15205,24627,30420,37167
+8219,"Road transport drivers n.e.c.",112,12000,21670,28725,37860,45512
+9211,"Postal workers, mail sorters and messengers",116,17256,24601,29761,34771,40203
+9223,"Cleaners and domestics",411,4127,7434,11852,18884,25537
+9231,"Security guards and related occupations",93,11482,23211,30819,37905,43472
+9252,"Warehouse operatives",449,12645,21841,26574,31876,38321
+9263,"Kitchen and catering assistants",322,3005,6788,11840,17846,24354
+9264,"Waiters and waitresses",146,2423,4784,10000,17788,25105
