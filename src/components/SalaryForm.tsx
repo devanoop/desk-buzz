@@ -14,10 +14,8 @@ import {
   Sparkles,
   TrendingUp,
 } from "lucide-react";
-import {
-  searchCompanies,
-  submitSalary,
-} from "@/lib/companies.functions";
+import { searchCompanies } from "@/modules/companies/functions";
+import { submitSalaryReport } from "@/modules/salaries/functions";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,13 +29,15 @@ type InitialCompany = { name: string; slug: string } | null;
 
 export function SalaryForm({ initial }: { initial: InitialCompany }) {
   const navigate = useNavigate();
-  const submit = useServerFn(submitSalary);
+  const submit = useServerFn(submitSalaryReport);
   const { user, loading, requireAuth } = useAuth();
 
   useEffect(() => {
-    if (!loading && !user) requireAuth();
+    if (!loading && !user)
+      requireAuth({
+        redirectTo: window.location.pathname + window.location.search,
+      });
   }, [loading, user, requireAuth]);
-
 
   const [company, setCompany] = useState<{ name: string; slug: string } | null>(
     initial,
@@ -46,30 +46,27 @@ export function SalaryForm({ initial }: { initial: InitialCompany }) {
   const [experience, setExperience] = useState<string>("");
   const [ctc, setCtc] = useState<string>("");
   const [location, setLocation] = useState("");
-  const [status, setStatus] = useState<"current" | "former">("current");
   const [submitted, setSubmitted] = useState(false);
 
   const mutation = useMutation({
     mutationFn: () =>
       submit({
         data: {
-          slug: company!.slug,
-          job_title: jobTitle,
-          location,
-          experience_years: Number(experience),
-          annual_ctc_lpa: Number(ctc),
+          companySlug: company!.slug,
+          jobTitle,
+          experienceYears: Number(experience),
+          country: "IN",
+          city: location,
+          payAmount: Number(ctc) * 100000, // LPA -> raw INR
+          payCurrency: "INR",
+          payPeriod: "annual",
         },
       }),
     onSuccess: () => {
       setSubmitted(true);
-      toast.success(
-        "Thank you! Your review has been submitted anonymously for community approval.",
-      );
+      toast.success("Thank you! Your salary report has been added.");
       setTimeout(() => {
-        navigate({
-          to: "/companies/$slug",
-          params: { slug: company!.slug },
-        });
+        navigate({ to: "/companies/$slug", params: { slug: company!.slug } });
       }, 1600);
     },
     onError: (e: Error) => toast.error(e.message),
@@ -78,7 +75,9 @@ export function SalaryForm({ initial }: { initial: InitialCompany }) {
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!user) {
-      requireAuth(() => mutation.mutate());
+      requireAuth({
+        redirectTo: window.location.pathname + window.location.search,
+      });
       return;
     }
     if (!company) return toast.error("Please select a company");
@@ -98,7 +97,10 @@ export function SalaryForm({ initial }: { initial: InitialCompany }) {
         <Navbar />
         <main className="mx-auto flex max-w-xl flex-col items-center px-4 py-24 text-center sm:px-6">
           <div className="animate-scale-in rounded-full bg-primary/10 p-6">
-            <CheckCircle2 className="h-16 w-16 text-primary" strokeWidth={1.75} />
+            <CheckCircle2
+              className="h-16 w-16 text-primary"
+              strokeWidth={1.75}
+            />
           </div>
           <h1 className="mt-6 animate-fade-in text-3xl font-bold text-foreground">
             Salary shared
@@ -231,26 +233,6 @@ export function SalaryForm({ initial }: { initial: InitialCompany }) {
               />
             </Field>
 
-            <Field label="Employment status" required>
-              <div className="grid grid-cols-2 gap-2 rounded-lg border border-border bg-secondary/40 p-1">
-                {(["current", "former"] as const).map((opt) => (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={() => setStatus(opt)}
-                    className={cn(
-                      "min-h-11 rounded-md px-3 py-2 text-sm font-medium transition-all",
-                      status === opt
-                        ? "bg-card text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground",
-                    )}
-                  >
-                    {opt === "current" ? "Current Employee" : "Former Employee"}
-                  </button>
-                ))}
-              </div>
-            </Field>
-
             <div className="space-y-4 border-t border-border pt-6">
               <p className="text-xs text-muted-foreground">
                 By submitting, you agree to our{" "}
@@ -351,7 +333,9 @@ function CompanyPicker({
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-card text-primary">
             <Building2 className="h-4 w-4" />
           </div>
-          <div className="text-sm font-medium text-foreground">{selected.name}</div>
+          <div className="text-sm font-medium text-foreground">
+            {selected.name}
+          </div>
         </div>
         <button
           type="button"
@@ -400,9 +384,13 @@ function CompanyPicker({
                   <Building2 className="h-4 w-4" />
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-foreground">{c.name}</div>
+                  <div className="text-sm font-medium text-foreground">
+                    {c.name}
+                  </div>
                   {c.industry && (
-                    <div className="text-xs text-muted-foreground">{c.industry}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {c.industry}
+                    </div>
                   )}
                 </div>
               </button>
@@ -410,11 +398,14 @@ function CompanyPicker({
           ))}
         </ul>
       )}
-      {open && debounced.length > 0 && !isFetching && companies.length === 0 && (
-        <div className="absolute left-0 right-0 top-11 z-30 rounded-lg border border-border bg-popover p-4 text-center text-sm text-muted-foreground shadow-2xl">
-          No companies match "{debounced}"
-        </div>
-      )}
+      {open &&
+        debounced.length > 0 &&
+        !isFetching &&
+        companies.length === 0 && (
+          <div className="absolute left-0 right-0 top-11 z-30 rounded-lg border border-border bg-popover p-4 text-center text-sm text-muted-foreground shadow-2xl">
+            No companies match "{debounced}"
+          </div>
+        )}
     </div>
   );
 }

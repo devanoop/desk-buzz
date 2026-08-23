@@ -1,8 +1,23 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, ArrowLeft, Building2, CheckCircle2, Loader2, Search, Star } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  Building2,
+  CheckCircle2,
+  Loader2,
+  Search,
+  Star,
+} from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -17,7 +32,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Toaster } from "@/components/ui/sonner";
-import { searchCompanies, submitReview } from "@/lib/companies.functions";
+import { searchCompanies } from "@/modules/companies/functions";
+import { submitReview } from "@/modules/reviews/functions";
 import {
   moderateReview,
   MIN_PROS_CHARS,
@@ -33,9 +49,12 @@ const EMPTY = {
   job_title: "",
   location: "",
   employment_status: "current" as "current" | "former" | "intern" | "contract",
-  rating_overall: 0,
-  rating_culture: 0,
+  employment_tenure: "",
+  rating_compensation: 0,
+  rating_management: 0,
   rating_work_life: 0,
+  rating_culture: 0,
+  rating_career_growth: 0,
   pros: "",
   cons: "",
 };
@@ -50,7 +69,10 @@ export function ReviewForm({ initial }: { initial: InitialCompany }) {
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) requireAuth({ redirectTo: window.location.pathname + window.location.search });
+    if (!loading && !user)
+      requireAuth({
+        redirectTo: window.location.pathname + window.location.search,
+      });
   }, [loading, user, requireAuth]);
 
   useEffect(() => {
@@ -61,26 +83,30 @@ export function ReviewForm({ initial }: { initial: InitialCompany }) {
     mutationFn: () =>
       submitFn({
         data: {
-          slug: company?.slug ?? "",
-          job_title: form.job_title,
+          companySlug: company?.slug ?? "",
+          jobTitle: form.job_title,
           location: form.location,
-          employment_status: form.employment_status,
-          rating_overall: form.rating_overall,
-          rating_culture: form.rating_culture,
-          rating_work_life: form.rating_work_life,
+          employmentStatus: form.employment_status,
+          employmentTenure: form.employment_tenure,
+          ratingCompensation: form.rating_compensation,
+          ratingManagement: form.rating_management,
+          ratingWorkLife: form.rating_work_life,
+          ratingCulture: form.rating_culture,
+          ratingCareerGrowth: form.rating_career_growth,
           pros: form.pros,
           cons: form.cons,
         },
       }),
     onSuccess: () => {
       toast.success(
-        "Thank you! Your review has been submitted anonymously for community approval.",
+        "Thank you! Your review has been submitted for moderator review.",
       );
-      // Clear local caches so newly added rows / fresh aggregates appear immediately.
       queryClient.invalidateQueries({ queryKey: ["companies-search"] });
       queryClient.invalidateQueries({ queryKey: ["review-company-search"] });
       if (company?.slug) {
-        queryClient.invalidateQueries({ queryKey: ["company-profile", company.slug] });
+        queryClient.invalidateQueries({
+          queryKey: ["company-profile", company.slug],
+        });
       }
       setSubmitted(true);
       setTimeout(() => {
@@ -107,13 +133,21 @@ export function ReviewForm({ initial }: { initial: InitialCompany }) {
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!user) {
-      requireAuth({ redirectTo: window.location.pathname + window.location.search });
+      requireAuth({
+        redirectTo: window.location.pathname + window.location.search,
+      });
       return;
     }
     if (!company?.slug) return toast.error("Please select a company");
     if (!form.job_title.trim()) return toast.error("Job title is required");
-    if (!form.rating_overall || !form.rating_culture || !form.rating_work_life) {
-      return toast.error("Please rate all three categories");
+    if (
+      !form.rating_compensation ||
+      !form.rating_management ||
+      !form.rating_work_life ||
+      !form.rating_culture ||
+      !form.rating_career_growth
+    ) {
+      return toast.error("Please rate all five categories");
     }
     const issues = moderateReview({ pros: form.pros, cons: form.cons });
     if (issues.length > 0) {
@@ -129,7 +163,9 @@ export function ReviewForm({ initial }: { initial: InitialCompany }) {
         <Navbar />
         <main className="mx-auto flex max-w-xl flex-col items-center px-4 py-24 text-center sm:px-6">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="mt-4 text-sm text-muted-foreground">Opening your review form…</p>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Opening your review form…
+          </p>
         </main>
       </div>
     );
@@ -141,13 +177,17 @@ export function ReviewForm({ initial }: { initial: InitialCompany }) {
         <Navbar />
         <main className="mx-auto flex max-w-xl flex-col items-center px-4 py-24 text-center sm:px-6">
           <div className="animate-scale-in rounded-full bg-primary/10 p-6">
-            <CheckCircle2 className="h-16 w-16 text-primary" strokeWidth={1.75} />
+            <CheckCircle2
+              className="h-16 w-16 text-primary"
+              strokeWidth={1.75}
+            />
           </div>
           <h1 className="mt-6 animate-fade-in text-3xl font-bold text-foreground">
             Review submitted
           </h1>
           <p className="mt-2 animate-fade-in text-muted-foreground">
-            Thanks for sharing — your anonymous review is now live. Taking you back…
+            Thanks for sharing — a moderator will review it shortly. Taking you
+            back…
           </p>
         </main>
       </div>
@@ -181,9 +221,12 @@ export function ReviewForm({ initial }: { initial: InitialCompany }) {
             <p className="text-xs font-semibold uppercase tracking-wider text-primary">
               Anonymous review
             </p>
-            <h1 className="mt-1 text-3xl font-bold text-foreground">Share your experience</h1>
+            <h1 className="mt-1 text-3xl font-bold text-foreground">
+              Share your experience
+            </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              No accounts, no tracking. Your review helps thousands of professionals.
+              No accounts linked publicly, ever. Your review helps thousands of
+              professionals.
             </p>
           </header>
 
@@ -194,7 +237,9 @@ export function ReviewForm({ initial }: { initial: InitialCompany }) {
                   <div className="flex h-8 w-8 items-center justify-center rounded-md bg-card text-primary">
                     <Building2 className="h-4 w-4" />
                   </div>
-                  <div className="text-sm font-medium text-foreground">{initial.name}</div>
+                  <div className="text-sm font-medium text-foreground">
+                    {initial.name}
+                  </div>
                 </div>
               ) : (
                 <CompanyPicker selected={company} onSelect={setCompany} />
@@ -221,7 +266,10 @@ export function ReviewForm({ initial }: { initial: InitialCompany }) {
                   <Select
                     value={form.employment_status}
                     onValueChange={(v) =>
-                      update("employment_status", v as typeof form.employment_status)
+                      update(
+                        "employment_status",
+                        v as typeof form.employment_status,
+                      )
                     }
                   >
                     <SelectTrigger>
@@ -235,21 +283,53 @@ export function ReviewForm({ initial }: { initial: InitialCompany }) {
                     </SelectContent>
                   </Select>
                 </Field>
+                <Field label="Tenure">
+                  <Input
+                    value={form.employment_tenure}
+                    onChange={(e) =>
+                      update("employment_tenure", e.target.value)
+                    }
+                    placeholder="e.g. 2 years 3 months"
+                  />
+                </Field>
               </div>
             </Section>
 
             <Section title="Rate your experience">
               <div className="space-y-4">
-                <StarRow label="Overall" value={form.rating_overall} onChange={(v) => update("rating_overall", v)} />
-                <StarRow label="Culture" value={form.rating_culture} onChange={(v) => update("rating_culture", v)} />
-                <StarRow label="Work-life balance" value={form.rating_work_life} onChange={(v) => update("rating_work_life", v)} />
+                <StarRow
+                  label="Compensation"
+                  value={form.rating_compensation}
+                  onChange={(v) => update("rating_compensation", v)}
+                />
+                <StarRow
+                  label="Management"
+                  value={form.rating_management}
+                  onChange={(v) => update("rating_management", v)}
+                />
+                <StarRow
+                  label="Work-life balance"
+                  value={form.rating_work_life}
+                  onChange={(v) => update("rating_work_life", v)}
+                />
+                <StarRow
+                  label="Culture"
+                  value={form.rating_culture}
+                  onChange={(v) => update("rating_culture", v)}
+                />
+                <StarRow
+                  label="Career growth"
+                  value={form.rating_career_growth}
+                  onChange={(v) => update("rating_career_growth", v)}
+                />
               </div>
             </Section>
 
             <Section title="What did you think?">
               <p className="mb-3 text-xs text-muted-foreground">
-                Pros and Cons are both required. Minimum {MIN_PROS_CHARS} characters each, {MIN_COMBINED_CHARS}+ total.
-                Keep feedback about the workplace — please don't name individuals.
+                Pros and Cons are both required. Minimum {MIN_PROS_CHARS}{" "}
+                characters each, {MIN_COMBINED_CHARS}+ total. Keep feedback
+                about the workplace — please don't name individuals.
               </p>
               {blockingIssues.length > 0 && (
                 <div
@@ -306,15 +386,21 @@ export function ReviewForm({ initial }: { initial: InitialCompany }) {
               </p>
               <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-xs text-muted-foreground">
-                  Posted anonymously · No personal data is collected.
+                  Posted anonymously · Goes to a moderator before it's public.
                 </p>
                 <Button
                   type="submit"
                   size="lg"
-                  disabled={mutation.isPending || !company?.slug || blockingIssues.length > 0}
+                  disabled={
+                    mutation.isPending ||
+                    !company?.slug ||
+                    blockingIssues.length > 0
+                  }
                   className="w-full sm:w-auto"
                 >
-                  {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {mutation.isPending && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
                   Submit Review
                 </Button>
               </div>
@@ -329,7 +415,9 @@ export function ReviewForm({ initial }: { initial: InitialCompany }) {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section>
-      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-primary">{title}</h2>
+      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-primary">
+        {title}
+      </h2>
       {children}
     </section>
   );
@@ -353,7 +441,9 @@ function Field({
           {label}
           {required && <span className="ml-0.5 text-destructive">*</span>}
         </Label>
-        {hint && <span className="text-[10px] text-muted-foreground">{hint}</span>}
+        {hint && (
+          <span className="text-[10px] text-muted-foreground">{hint}</span>
+        )}
       </div>
       {children}
     </div>
@@ -387,7 +477,9 @@ function StarRow({
             <Star
               className={cn(
                 "h-6 w-6 transition-colors",
-                n <= display ? "fill-primary text-primary" : "text-muted-foreground/40",
+                n <= display
+                  ? "fill-primary text-primary"
+                  : "text-muted-foreground/40",
               )}
             />
           </button>
@@ -441,7 +533,9 @@ function CompanyPicker({
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-card text-primary">
             <Building2 className="h-4 w-4" />
           </div>
-          <div className="text-sm font-medium text-foreground">{selected.name}</div>
+          <div className="text-sm font-medium text-foreground">
+            {selected.name}
+          </div>
         </div>
         <button
           type="button"
@@ -490,19 +584,28 @@ function CompanyPicker({
                   <Building2 className="h-4 w-4" />
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-foreground">{c.name}</div>
-                  {c.industry && <div className="text-xs text-muted-foreground">{c.industry}</div>}
+                  <div className="text-sm font-medium text-foreground">
+                    {c.name}
+                  </div>
+                  {c.industry && (
+                    <div className="text-xs text-muted-foreground">
+                      {c.industry}
+                    </div>
+                  )}
                 </div>
               </button>
             </li>
           ))}
         </ul>
       )}
-      {open && debounced.length > 0 && !isFetching && companies.length === 0 && (
-        <div className="absolute left-0 right-0 top-11 z-30 rounded-lg border border-border bg-popover p-4 text-center text-sm text-muted-foreground shadow-2xl">
-          No companies match "{debounced}"
-        </div>
-      )}
+      {open &&
+        debounced.length > 0 &&
+        !isFetching &&
+        companies.length === 0 && (
+          <div className="absolute left-0 right-0 top-11 z-30 rounded-lg border border-border bg-popover p-4 text-center text-sm text-muted-foreground shadow-2xl">
+            No companies match "{debounced}"
+          </div>
+        )}
     </div>
   );
 }

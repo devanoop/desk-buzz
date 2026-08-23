@@ -1,6 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { getCompanyProfile } from "@/lib/companies.functions";
+import { getCompanyProfile } from "@/modules/companies/functions";
 import { ReviewForm } from "@/components/ReviewForm";
 import { Navbar } from "@/components/Navbar";
 
@@ -12,7 +12,9 @@ const profileQuery = (slug: string) =>
 
 export const Route = createFileRoute("/companies/$slug/review")({
   loader: async ({ context, params }) => {
-    const data = await context.queryClient.ensureQueryData(profileQuery(params.slug));
+    const data = await context.queryClient.ensureQueryData(
+      profileQuery(params.slug),
+    );
     if (!data.company) throw notFound();
   },
   head: () => ({
@@ -25,7 +27,9 @@ export const Route = createFileRoute("/companies/$slug/review")({
   errorComponent: ({ error }) => (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="p-10 text-center text-sm text-destructive">{error.message}</div>
+      <div className="p-10 text-center text-sm text-destructive">
+        {error.message}
+      </div>
     </div>
   ),
   notFoundComponent: () => (
@@ -47,11 +51,13 @@ function ScopedReviewForm() {
         <Navbar />
         <main className="mx-auto flex max-w-xl flex-col items-center px-4 py-24 text-center sm:px-6">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p className="mt-4 text-sm text-muted-foreground">Loading company details…</p>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Loading company details…
+          </p>
         </main>
       </div>
     );
   }
 
-  return <ReviewForm initial={{ name: c.name, slug: data.canonicalSlug ?? c.slug }} />;
+  return <ReviewForm initial={{ name: c.name, slug: c.slug }} />;
 }

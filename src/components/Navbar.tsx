@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Menu, MessageSquarePlus, Banknote, LogOut } from "lucide-react";
+import {
+  Menu,
+  MessageSquarePlus,
+  Banknote,
+  LogOut,
+  LogIn,
+  TrendingUp,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -33,12 +40,15 @@ export function Navbar() {
         {/* Desktop actions */}
         <div className="hidden items-center gap-1 sm:flex">
           <Button asChild variant="ghost">
+            <Link to="/salaries">Salary Explorer</Link>
+          </Button>
+          <Button asChild variant="ghost">
             <AuthGatedLink to="/review">Write a Review</AuthGatedLink>
           </Button>
           <Button asChild className="ml-2">
             <AuthGatedLink to="/share-salary">Share Salary</AuthGatedLink>
           </Button>
-          {user && (
+          {user ? (
             <Button
               variant="ghost"
               size="icon"
@@ -47,6 +57,18 @@ export function Navbar() {
               className="ml-1"
             >
               <LogOut className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              asChild
+              variant="ghost"
+              size="icon"
+              aria-label="Sign in"
+              className="ml-1"
+            >
+              <Link to="/login">
+                <LogIn className="h-4 w-4" />
+              </Link>
             </Button>
           )}
         </div>
@@ -75,6 +97,15 @@ export function Navbar() {
               </SheetHeader>
               <nav className="flex flex-col gap-2 px-4 py-5">
                 <SheetClose asChild>
+                  <Link
+                    to="/salaries"
+                    className="flex min-h-12 items-center gap-3 rounded-lg px-3 text-base font-medium text-foreground hover:bg-secondary active:bg-secondary"
+                  >
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                    Salary Explorer
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
                   <AuthGatedLink
                     to="/review"
                     className="flex min-h-12 items-center gap-3 rounded-lg px-3 text-base font-medium text-foreground hover:bg-secondary active:bg-secondary"
@@ -96,10 +127,12 @@ export function Navbar() {
               <div className="mt-2 border-t border-border px-4 py-4 space-y-2">
                 <SheetClose asChild>
                   <Button asChild size="lg" className="h-12 w-full">
-                    <AuthGatedLink to="/share-salary">Share Salary</AuthGatedLink>
+                    <AuthGatedLink to="/share-salary">
+                      Share Salary
+                    </AuthGatedLink>
                   </Button>
                 </SheetClose>
-                {user && (
+                {user ? (
                   <Button
                     variant="ghost"
                     size="lg"
@@ -108,6 +141,19 @@ export function Navbar() {
                   >
                     <LogOut className="mr-2 h-4 w-4" /> Sign out
                   </Button>
+                ) : (
+                  <SheetClose asChild>
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="lg"
+                      className="h-12 w-full"
+                    >
+                      <Link to="/login">
+                        <LogIn className="mr-2 h-4 w-4" /> Sign in
+                      </Link>
+                    </Button>
+                  </SheetClose>
                 )}
               </div>
             </SheetContent>

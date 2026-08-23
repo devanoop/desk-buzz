@@ -54,19 +54,19 @@ Build a **source-agnostic ingestion pipeline**. Every salary record must carry p
 
 **Required schema for salary records:**
 
-| Field | Notes |
-|---|---|
-| `source_id` | FK to a `data_sources` table |
-| `source_licence` | e.g. `public-domain-usgov`, `OGL-3.0`, `CC-BY-4.0` |
-| `source_url` | Where it was fetched from |
-| `ingested_at` | Timestamp |
-| `country`, `region`, `city` | Geography |
-| `occupation_code`, `occupation_title` | Normalised |
-| `employer_name`, `employer_id` | Nullable — only some sources are employer-level |
-| `pay_amount`, `pay_currency`, `pay_period` | Normalised to annual for display |
-| `percentile` | p10/p25/p50/p75/p90 where the source provides a distribution |
-| `sample_size` | Nullable |
-| `confidence` | Derived: `high` / `medium` / `low` |
+| Field                                      | Notes                                                        |
+| ------------------------------------------ | ------------------------------------------------------------ |
+| `source_id`                                | FK to a `data_sources` table                                 |
+| `source_licence`                           | e.g. `public-domain-usgov`, `OGL-3.0`, `CC-BY-4.0`           |
+| `source_url`                               | Where it was fetched from                                    |
+| `ingested_at`                              | Timestamp                                                    |
+| `country`, `region`, `city`                | Geography                                                    |
+| `occupation_code`, `occupation_title`      | Normalised                                                   |
+| `employer_name`, `employer_id`             | Nullable — only some sources are employer-level              |
+| `pay_amount`, `pay_currency`, `pay_period` | Normalised to annual for display                             |
+| `percentile`                               | p10/p25/p50/p75/p90 where the source provides a distribution |
+| `sample_size`                              | Nullable                                                     |
+| `confidence`                               | Derived: `high` / `medium` / `low`                           |
 
 **Sources to implement adapters for.** Before writing each adapter, fetch the source's current landing page and confirm the download URL, file format, and licence terms are still what I've described — these change between release years. Record what you find in `docs/data-sources.md`.
 
@@ -78,6 +78,7 @@ Build a **source-agnostic ingestion pipeline**. Every salary record must carry p
 **Coverage honesty requirement:** there is **no open, employer-level salary dataset for India**. MoSPI's Periodic Labour Force Survey gives broad occupation and sector bands only. Do not fabricate Indian employer salary data, do not extrapolate US figures into INR, and do not present a bare currency conversion as local market data. Where a country has no coverage, the UI must say so plainly and fall back to user-contributed submissions.
 
 **Deliverables:**
+
 - One adapter module per source, each independently runnable.
 - An occupation-title normaliser mapping free-text titles to O\*NET/SOC codes.
 - An aggregation layer computing percentiles per (occupation, geography, employer?) with a minimum sample-size threshold below which figures are suppressed rather than shown.
@@ -89,6 +90,7 @@ Build a **source-agnostic ingestion pipeline**. Every salary record must carry p
 ### PHASE 3 — Application rebuild
 
 **Public surface:**
+
 - Company profiles: overview, aggregate rating, review list, salary ranges by role.
 - Salary explorer: filter by occupation, geography, employer, seniority. Show the distribution and the sample size, not just a single number. Always display which source the figure came from.
 - Review submission: rating dimensions (compensation, management, work-life balance, culture, career growth), pros/cons free text, employment status, job title, tenure.
@@ -96,6 +98,7 @@ Build a **source-agnostic ingestion pipeline**. Every salary record must carry p
 - Every salary figure displays its source and licence attribution inline. Every aggregate displays its sample size.
 
 **Authentication and roles:**
+
 - `anonymous` — read-only.
 - `user` — submits own reviews and salary reports; can edit or delete their own within a defined window.
 - `moderator` — approves, rejects, and redacts submissions; cannot author content.
@@ -104,6 +107,7 @@ Build a **source-agnostic ingestion pipeline**. Every salary record must carry p
 Use email + password with a proper KDF (argon2id or bcrypt), email verification, secure session cookies, CSRF protection, and rate limiting on auth and submission endpoints.
 
 **Admin-on-behalf submission — implement with these guardrails, they are not optional:**
+
 - Every review row carries `submission_source` with values `self_submitted`, `admin_on_behalf`, or `imported`.
 - Reviews with `admin_on_behalf` or `imported` render with a **visible badge** on the public page indicating they were not directly self-submitted. Do not hide this behind a tooltip.
 - An immutable `audit_log` table records: acting admin ID, timestamp, target review ID, action, and a required free-text `justification` field the admin must fill (e.g. "transcribed from paper exit-survey, ref #1182").
@@ -120,6 +124,7 @@ Use email + password with a proper KDF (argon2id or bcrypt), email verification,
 ### PHASE 4 — One-click deployment
 
 Primary target **Railway**:
+
 - `railway.json` (or `railway.toml`) with build and start commands and a healthcheck path.
 - A Dockerfile — multi-stage, non-root user, small final image. Do not rely on buildpack auto-detection.
 - Postgres provisioned as a Railway service, wired via `DATABASE_URL`.
@@ -127,10 +132,12 @@ Primary target **Railway**:
 - A `Deploy on Railway` button in the README pointing at the template URL. Note in the README that this requires the repo to be public.
 
 Alternates, both committed and both tested:
+
 - `render.yaml` blueprint (web service + Postgres).
 - `fly.toml` plus deploy instructions.
 
 Also produce:
+
 - `.env.example` with every variable documented and no real values.
 - A README covering local setup, running ingestion, creating the first admin, and the cost expectation on each host.
 - A one-command local bring-up (`docker compose up` or equivalent) that gives a working app with sample data.

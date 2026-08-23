@@ -33,10 +33,57 @@ const TITLE_PATTERNS: RegExp[] = [
 // where neither is a common sentence-start English word. Catches "John Smith"
 // without firing on "I Joined" or "Great Place".
 const COMMON_CAPITALISED = new Set([
-  "I","The","A","An","My","We","They","He","She","It","This","That","These","Those",
-  "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday",
-  "January","February","March","April","May","June","July","August","September","October","November","December",
-  "Pros","Cons","Work","Life","HR","IT","India","Bengaluru","Bangalore","Mumbai","Delhi","Pune","Chennai","Hyderabad","Noida","Gurgaon","Gurugram","Kolkata",
+  "I",
+  "The",
+  "A",
+  "An",
+  "My",
+  "We",
+  "They",
+  "He",
+  "She",
+  "It",
+  "This",
+  "That",
+  "These",
+  "Those",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+  "Pros",
+  "Cons",
+  "Work",
+  "Life",
+  "HR",
+  "IT",
+  "India",
+  "Bengaluru",
+  "Bangalore",
+  "Mumbai",
+  "Delhi",
+  "Pune",
+  "Chennai",
+  "Hyderabad",
+  "Noida",
+  "Gurgaon",
+  "Gurugram",
+  "Kolkata",
 ]);
 const NAME_PATTERN = /\b([A-Z][a-z]{1,15})\s+([A-Z][a-z]{1,15})\b/g;
 
@@ -46,19 +93,25 @@ export type ModerationIssue =
   | { kind: "title"; field: "pros" | "cons"; message: string }
   | { kind: "name"; field: "pros" | "cons"; message: string };
 
-const hasProfanity = (text: string) => PROFANITY_PATTERNS.some((p) => p.test(text));
-const hasTitleTarget = (text: string) => TITLE_PATTERNS.some((p) => p.test(text));
+const hasProfanity = (text: string) =>
+  PROFANITY_PATTERNS.some((p) => p.test(text));
+const hasTitleTarget = (text: string) =>
+  TITLE_PATTERNS.some((p) => p.test(text));
 
 const hasPersonalName = (text: string) => {
   NAME_PATTERN.lastIndex = 0;
   let m: RegExpExecArray | null;
   while ((m = NAME_PATTERN.exec(text)) !== null) {
-    if (!COMMON_CAPITALISED.has(m[1]) && !COMMON_CAPITALISED.has(m[2])) return true;
+    if (!COMMON_CAPITALISED.has(m[1]) && !COMMON_CAPITALISED.has(m[2]))
+      return true;
   }
   return false;
 };
 
-export function moderateReview(input: { pros: string; cons: string }): ModerationIssue[] {
+export function moderateReview(input: {
+  pros: string;
+  cons: string;
+}): ModerationIssue[] {
   const issues: ModerationIssue[] = [];
   const pros = input.pros.trim();
   const cons = input.cons.trim();

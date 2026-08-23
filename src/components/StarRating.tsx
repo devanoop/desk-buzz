@@ -1,6 +1,12 @@
 import { Star } from "lucide-react";
 
-export function StarRating({ value, size = 16 }: { value: number; size?: number }) {
+export function StarRating({
+  value,
+  size = 16,
+}: {
+  value: number;
+  size?: number;
+}) {
   const full = Math.floor(value);
   const half = value - full >= 0.25 && value - full < 0.75;
   const total = 5;

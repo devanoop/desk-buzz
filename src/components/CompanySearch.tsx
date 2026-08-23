@@ -3,7 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Search, Plus, Building2, Loader2 } from "lucide-react";
-import { searchCompanies, addCompany } from "@/lib/companies.functions";
+import { searchCompanies, addCompany } from "@/modules/companies/functions";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -81,7 +81,10 @@ export function CompanySearch() {
                   <button
                     onClick={() => {
                       setOpen(false);
-                      navigate({ to: "/companies/$slug", params: { slug: c.slug } });
+                      navigate({
+                        to: "/companies/$slug",
+                        params: { slug: c.slug },
+                      });
                     }}
                     className="flex w-full items-center gap-3 px-5 py-3 text-left transition-colors hover:bg-secondary"
                   >
@@ -89,9 +92,13 @@ export function CompanySearch() {
                       <Building2 className="h-4 w-4" />
                     </div>
                     <div className="flex-1">
-                      <div className="font-medium text-foreground">{c.name}</div>
+                      <div className="font-medium text-foreground">
+                        {c.name}
+                      </div>
                       {c.industry && (
-                        <div className="text-xs text-muted-foreground">{c.industry}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {c.industry}
+                        </div>
                       )}
                     </div>
                   </button>

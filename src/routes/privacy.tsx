@@ -105,8 +105,8 @@ function PrivacyPage() {
               <p>
                 Your anonymity on the Platform is a foundational guarantee, not
                 a feature. We have engineered our systems so that personal
-                identifiers and public content live in <strong>completely
-                separate, decoupled data stores</strong>:
+                identifiers and public content live in{" "}
+                <strong>completely separate, decoupled data stores</strong>:
               </p>
               <ul className="ml-6 list-disc space-y-2">
                 <li>
@@ -115,11 +115,11 @@ function PrivacyPage() {
                   encryption in transit and at rest.
                 </li>
                 <li>
-                  The reviews, salary breakdowns, ratings, and other content
-                  you submit are stored independently and contain{" "}
+                  The reviews, salary breakdowns, ratings, and other content you
+                  submit are stored independently and contain{" "}
                   <strong>no link, foreign key, or join path</strong> back to
-                  your authentication identity in any public-facing query or
-                  API response.
+                  your authentication identity in any public-facing query or API
+                  response.
                 </li>
                 <li>
                   No employee, administrator, or third party can look up a
@@ -138,10 +138,10 @@ function PrivacyPage() {
 
             <Section id="no-sharing" title="3. No Third-Party Sharing">
               <p>
-                DeskBuz <strong>never sells, rents, leases, trades, or
-                shares</strong> your individual professional identity, email
-                address, account record, or any personally identifiable
-                information with:
+                DeskBuz{" "}
+                <strong>never sells, rents, leases, trades, or shares</strong>{" "}
+                your individual professional identity, email address, account
+                record, or any personally identifiable information with:
               </p>
               <ul className="ml-6 list-disc space-y-2">
                 <li>
@@ -149,8 +149,8 @@ function PrivacyPage() {
                   background verification agencies;
                 </li>
                 <li>
-                  Third-party marketing companies, advertising networks, or
-                  data brokers;
+                  Third-party marketing companies, advertising networks, or data
+                  brokers;
                 </li>
                 <li>
                   Any external entity for the purpose of profiling, retargeting,
@@ -161,9 +161,9 @@ function PrivacyPage() {
                 We may share strictly anonymised, aggregated statistics (for
                 example, "average software engineer salary in Bangalore") that
                 cannot be used to identify any individual user. We may also
-                disclose information when required by a valid legal order from
-                a court or government authority of competent jurisdiction
-                under Indian law.
+                disclose information when required by a valid legal order from a
+                court or government authority of competent jurisdiction under
+                Indian law.
               </p>
             </Section>
 
@@ -172,9 +172,9 @@ function PrivacyPage() {
                 All personal data is stored on secure servers with industry
                 standard safeguards including encryption in transit (TLS),
                 encryption at rest, access controls, audit logging, and the
-                principle of least privilege. We retain authentication data
-                only for as long as your account remains active, or as
-                required by applicable law.
+                principle of least privilege. We retain authentication data only
+                for as long as your account remains active, or as required by
+                applicable law.
               </p>
             </Section>
 
@@ -186,9 +186,9 @@ function PrivacyPage() {
               </p>
               <ul className="ml-6 list-disc space-y-2">
                 <li>
-                  <strong>Right to Access:</strong> You may request a summary
-                  of the personal data we hold about you and the purposes for
-                  which it is processed.
+                  <strong>Right to Access:</strong> You may request a summary of
+                  the personal data we hold about you and the purposes for which
+                  it is processed.
                 </li>
                 <li>
                   <strong>Right to Correction:</strong> You may request that
@@ -209,8 +209,8 @@ function PrivacyPage() {
                 </li>
                 <li>
                   <strong>Right to Nominate:</strong> You may nominate another
-                  individual to exercise your rights in the event of your
-                  death or incapacity, as provided under the DPDP Act.
+                  individual to exercise your rights in the event of your death
+                  or incapacity, as provided under the DPDP Act.
                 </li>
               </ul>
               <p>
@@ -231,11 +231,11 @@ function PrivacyPage() {
               <p>
                 By creating an account on DeskBuz, you provide free, specific,
                 informed, and unambiguous consent to the processing of your
-                personal data for the purposes described in this Policy. You
-                may withdraw your consent at any time by deleting your account
-                via the process described in Section 5. Withdrawal of consent
-                will not affect the lawfulness of processing carried out
-                before such withdrawal.
+                personal data for the purposes described in this Policy. You may
+                withdraw your consent at any time by deleting your account via
+                the process described in Section 5. Withdrawal of consent will
+                not affect the lawfulness of processing carried out before such
+                withdrawal.
               </p>
             </Section>
 
@@ -256,8 +256,8 @@ function PrivacyPage() {
                 <p className="mt-3 text-sm text-muted-foreground">
                   For all questions regarding this Privacy Policy, requests to
                   access or delete your data, or any concern about how DeskBuz
-                  handles your personal information, please write to the
-                  address above.
+                  handles your personal information, please write to the address
+                  above.
                 </p>
               </div>
             </Section>
@@ -267,8 +267,7 @@ function PrivacyPage() {
                 We may update this Privacy Policy from time to time to reflect
                 changes in law or our practices. Material changes will be
                 notified through the Platform. Your continued use of DeskBuz
-                after such changes constitutes acceptance of the updated
-                Policy.
+                after such changes constitutes acceptance of the updated Policy.
               </p>
             </Section>
           </div>

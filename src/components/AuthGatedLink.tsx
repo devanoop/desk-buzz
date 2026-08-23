@@ -16,8 +16,7 @@ function buildPath(to: unknown, params: unknown): string {
 
 /**
  * Renders a TanStack Link, but if the user is not authenticated the click
- * opens the auth dialog and navigates after a successful sign-in (including
- * after an OAuth redirect round-trip).
+ * redirects to /login instead, returning to this destination after sign-in.
  */
 export const AuthGatedLink = forwardRef<HTMLAnchorElement, LinkProps>(
   function AuthGatedLink(props, ref) {
@@ -28,7 +27,10 @@ export const AuthGatedLink = forwardRef<HTMLAnchorElement, LinkProps>(
       if (e.defaultPrevented) return;
       if (user) return;
       e.preventDefault();
-      const redirectTo = buildPath(props.to, (props as { params?: unknown }).params);
+      const redirectTo = buildPath(
+        props.to,
+        (props as { params?: unknown }).params,
+      );
       requireAuth({ redirectTo });
     };
 

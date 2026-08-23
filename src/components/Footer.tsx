@@ -27,9 +27,9 @@ export function Footer() {
               DeskBuz
             </Link>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              Anonymous, employee-sourced reviews and salary insights — built to give
-              professionals a clear, honest read on what it's actually like to work
-              somewhere before they say yes.
+              Anonymous, employee-sourced reviews and salary insights — built to
+              give professionals a clear, honest read on what it's actually like
+              to work somewhere before they say yes.
             </p>
           </div>
 

@@ -71,14 +71,17 @@ function TermsPage() {
           </header>
 
           <div className="mt-10 space-y-12">
-            <Section id="intermediary" title="1. Intermediary Status & Safe Harbor">
+            <Section
+              id="intermediary"
+              title="1. Intermediary Status & Safe Harbor"
+            >
               <p>
                 DeskBuz operates purely as an "intermediary" as defined under
-                Section 2(1)(w) of the Information Technology Act, 2000 (the
-                "IT Act"), and is entitled to the safe harbor protections
-                available under Section 79 of the IT Act and the Information
-                Technology (Intermediary Guidelines and Digital Media Ethics
-                Code) Rules, 2021.
+                Section 2(1)(w) of the Information Technology Act, 2000 (the "IT
+                Act"), and is entitled to the safe harbor protections available
+                under Section 79 of the IT Act and the Information Technology
+                (Intermediary Guidelines and Digital Media Ethics Code) Rules,
+                2021.
               </p>
               <p>
                 The Platform provides a neutral, technology-enabled venue for
@@ -93,16 +96,15 @@ function TermsPage() {
                 user-generated content hosted on the Platform. We do not
                 guarantee the accuracy, completeness, or reliability of any
                 review, salary listing, or other content posted by users. Any
-                reliance you place on such content is strictly at your own
-                risk.
+                reliance you place on such content is strictly at your own risk.
               </p>
             </Section>
 
             <Section id="conduct" title="2. Prohibited User Conduct">
               <p>
-                By using the Platform you agree that you will not host,
-                display, upload, modify, publish, transmit, store, update, or
-                share any information or content that:
+                By using the Platform you agree that you will not host, display,
+                upload, modify, publish, transmit, store, update, or share any
+                information or content that:
               </p>
               <ul className="ml-6 list-disc space-y-2">
                 <li>
@@ -113,8 +115,8 @@ function TermsPage() {
                 </li>
                 <li>
                   is hateful, racially or ethnically objectionable,
-                  discriminatory, or relating to or encouraging money
-                  laundering or gambling;
+                  discriminatory, or relating to or encouraging money laundering
+                  or gambling;
                 </li>
                 <li>
                   infringes any patent, trademark, copyright, trade secret, or
@@ -131,17 +133,17 @@ function TermsPage() {
                 <li>
                   threatens the unity, integrity, defence, security or
                   sovereignty of India, friendly relations with foreign States,
-                  or public order, or causes incitement to the commission of
-                  any cognisable offence;
+                  or public order, or causes incitement to the commission of any
+                  cognisable offence;
                 </li>
                 <li>
                   contains software viruses, malicious code, or is otherwise
                   intended to harm the Platform or its users;
                 </li>
                 <li>
-                  is knowingly false, misleading, or intended to deceive
-                  readers about the nature of a workplace, salary, or
-                  employment experience.
+                  is knowingly false, misleading, or intended to deceive readers
+                  about the nature of a workplace, salary, or employment
+                  experience.
                 </li>
               </ul>
               <p>
@@ -158,11 +160,11 @@ function TermsPage() {
 
             <Section id="indemnity" title="3. User Responsibility & Indemnity">
               <p>
-                You acknowledge and agree that you are <strong>solely and
-                exclusively liable</strong> for any and all content, reviews,
-                salary data, comments, or other information that you post,
-                submit, or transmit through the Platform. DeskBuz bears no
-                responsibility or liability whatsoever for the content
+                You acknowledge and agree that you are{" "}
+                <strong>solely and exclusively liable</strong> for any and all
+                content, reviews, salary data, comments, or other information
+                that you post, submit, or transmit through the Platform. DeskBuz
+                bears no responsibility or liability whatsoever for the content
                 authored by users.
               </p>
               <p>
@@ -172,8 +174,8 @@ function TermsPage() {
                 damages, costs, and expenses (including reasonable attorneys'
                 fees) arising out of or in connection with: (a) any content you
                 submit to the Platform; (b) your breach of these Terms; or (c)
-                your violation of any applicable law or the rights of any
-                third party.
+                your violation of any applicable law or the rights of any third
+                party.
               </p>
               <p>
                 You represent and warrant that any content you submit is your
@@ -184,7 +186,10 @@ function TermsPage() {
               </p>
             </Section>
 
-            <Section id="takedown" title="4. Content Removal & Statutory Compliance">
+            <Section
+              id="takedown"
+              title="4. Content Removal & Statutory Compliance"
+            >
               <p>
                 In accordance with Rule 3(1)(d) of the Information Technology
                 (Intermediary Guidelines and Digital Media Ethics Code) Rules,
@@ -211,9 +216,9 @@ function TermsPage() {
                 seeking the removal of defamatory, infringing, or otherwise
                 violating content may submit a written complaint to our
                 Grievance Officer at the address below. Complaints should
-                include: (i) the URL of the specific content; (ii) the nature
-                of the grievance and the rule or right alleged to be violated;
-                and (iii) verifiable contact details of the complainant.
+                include: (i) the URL of the specific content; (ii) the nature of
+                the grievance and the rule or right alleged to be violated; and
+                (iii) verifiable contact details of the complainant.
               </p>
               <div className="rounded-lg border border-border bg-secondary/40 p-5">
                 <p className="text-sm font-medium uppercase tracking-wider text-primary">
@@ -229,12 +234,12 @@ function TermsPage() {
                   </a>
                 </p>
                 <p className="mt-3 text-sm text-muted-foreground">
-                  In accordance with Indian statutory timelines, complaints
-                  will be acknowledged within twenty-four (24) hours of
-                  receipt, and resolved within fifteen (15) days. Content
-                  flagged under Rule 3(2)(b) (relating to the impersonation or
-                  exposure of private parts of an individual) will be actioned
-                  within seventy-two (72) hours.
+                  In accordance with Indian statutory timelines, complaints will
+                  be acknowledged within twenty-four (24) hours of receipt, and
+                  resolved within fifteen (15) days. Content flagged under Rule
+                  3(2)(b) (relating to the impersonation or exposure of private
+                  parts of an individual) will be actioned within seventy-two
+                  (72) hours.
                 </p>
               </div>
             </Section>
@@ -243,9 +248,9 @@ function TermsPage() {
               <p>
                 These Terms shall be governed by and construed in accordance
                 with the laws of India. Any dispute arising out of or in
-                connection with these Terms or your use of the Platform shall
-                be subject to the exclusive jurisdiction of the competent
-                courts located in India.
+                connection with these Terms or your use of the Platform shall be
+                subject to the exclusive jurisdiction of the competent courts
+                located in India.
               </p>
             </Section>
 
