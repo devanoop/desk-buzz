@@ -23,6 +23,22 @@ const tsvector = customType<{ data: string }>({
   dataType: () => "tsvector",
 });
 
+// to_tsvector(regconfig, text) and array_to_string() are only STABLE in
+// Postgres's catalog, so Postgres rejects any expression that calls them
+// directly inside a GENERATED ALWAYS AS (...) STORED expression with
+// "generation expression is not immutable" — and critically, wrapping the
+// call in your own IMMUTABLE function only hides *that* function's own
+// body from the check; a non-immutable call left in one of the *arguments*
+// still poisons the outer expression's computed volatility. So each
+// search_vector below is a single call to a dedicated IMMUTABLE SQL
+// function (deskbuz_company_search_vector / deskbuz_occupation_search_vector)
+// that takes plain columns as arguments and does all the to_tsvector /
+// array_to_string work inside its own body, where Postgres trusts the
+// declared volatility instead of inspecting it. These functions are
+// created by CREATE FUNCTION statements hand-added to the top of
+// drizzle/migrations/0000_*.sql (Drizzle has no schema-builder concept of
+// a function, so it can't generate them on its own).
+
 export const companies = pgTable(
   "companies",
   {
@@ -39,7 +55,7 @@ export const companies = pgTable(
     // Phase 1 architecture decision (no Elasticsearch).
     searchVector: tsvector("search_vector").generatedAlwaysAs(
       (): ReturnType<typeof sql> =>
-        sql`setweight(to_tsvector('english', coalesce(name, '')), 'A') || setweight(to_tsvector('english', coalesce(industry, '')), 'B') || setweight(to_tsvector('english', coalesce(description, '')), 'C')`,
+        sql`deskbuz_company_search_vector(name, industry, description)`,
     ),
   },
   (t) => [index("companies_search_idx").using("gin", t.searchVector)],
@@ -62,7 +78,7 @@ export const occupations = pgTable(
     // Powers "search across ... roles" (Phase 3).
     searchVector: tsvector("search_vector").generatedAlwaysAs(
       (): ReturnType<typeof sql> =>
-        sql`setweight(to_tsvector('english', coalesce(title, '')), 'A') || setweight(to_tsvector('english', array_to_string(aliases, ' ')), 'B')`,
+        sql`deskbuz_occupation_search_vector(title, aliases)`,
     ),
   },
   (t) => [index("occupations_search_idx").using("gin", t.searchVector)],

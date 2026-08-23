@@ -133,9 +133,22 @@ export async function ingestBenchmarkPoints(
     employerIdByName.set(name, await findCompanyIdByExactName(name));
   }
 
+  // Postgres rejects "ON CONFLICT DO UPDATE" when the same conflict target
+  // (dedupeKey) appears twice in one INSERT's VALUES list ("command cannot
+  // affect row a second time") — two source rows can normalize to the same
+  // (occupation, geography, employer, percentile) identity, e.g. distinct
+  // upstream occupation codes mapping onto one O*NET occupation. Since
+  // dedupeKey is defined as exactly the fields that make two points "the
+  // same observation" (see computeDedupeKey), collapsing to the last one
+  // here is correct, not a data loss — it's the same thing onConflictDoUpdate
+  // would have done across separate statements anyway.
+  const dedupedPoints = [
+    ...new Map(points.map((p) => [computeDedupeKey(sourceKey, p), p])).values(),
+  ];
+
   const BATCH = 500;
-  for (let i = 0; i < points.length; i += BATCH) {
-    const batch = points.slice(i, i + BATCH);
+  for (let i = 0; i < dedupedPoints.length; i += BATCH) {
+    const batch = dedupedPoints.slice(i, i + BATCH);
     const rows = batch
       .map((p) => {
         const occupationId = occupationIdBySoc.get(p.occupationSocCode);

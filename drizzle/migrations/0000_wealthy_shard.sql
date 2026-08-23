@@ -1,3 +1,18 @@
+-- Postgres rejects to_tsvector()/array_to_string() directly inside a
+-- GENERATED ALWAYS AS (...) STORED expression ("generation expression is
+-- not immutable") because both are only STABLE in its catalog. Each
+-- function below does that work inside its own body instead, where
+-- Postgres trusts the declared IMMUTABLE label rather than inspecting it
+-- — the standard fix. See src/modules/db/schema.ts.
+CREATE FUNCTION "deskbuz_company_search_vector"(name text, industry text, description text) RETURNS tsvector AS $$
+	SELECT setweight(to_tsvector('english', coalesce(name, '')), 'A')
+		|| setweight(to_tsvector('english', coalesce(industry, '')), 'B')
+		|| setweight(to_tsvector('english', coalesce(description, '')), 'C')
+$$ LANGUAGE sql IMMUTABLE PARALLEL SAFE;--> statement-breakpoint
+CREATE FUNCTION "deskbuz_occupation_search_vector"(title text, aliases text[]) RETURNS tsvector AS $$
+	SELECT setweight(to_tsvector('english', coalesce(title, '')), 'A')
+		|| setweight(to_tsvector('english', array_to_string(coalesce(aliases, '{}'), ' ')), 'B')
+$$ LANGUAGE sql IMMUTABLE PARALLEL SAFE;--> statement-breakpoint
 CREATE TYPE "public"."app_role" AS ENUM('admin', 'moderator', 'user');--> statement-breakpoint
 CREATE TYPE "public"."confidence_level" AS ENUM('high', 'medium', 'low');--> statement-breakpoint
 CREATE TYPE "public"."dispute_status" AS ENUM('open', 'resolved', 'dismissed');--> statement-breakpoint
@@ -26,7 +41,7 @@ CREATE TABLE "companies" (
 	"description" text,
 	"website" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"search_vector" "tsvector" GENERATED ALWAYS AS (setweight(to_tsvector('english', coalesce(name, '')), 'A') || setweight(to_tsvector('english', coalesce(industry, '')), 'B') || setweight(to_tsvector('english', coalesce(description, '')), 'C')) STORED,
+	"search_vector" "tsvector" GENERATED ALWAYS AS (deskbuz_company_search_vector(name, industry, description)) STORED,
 	CONSTRAINT "companies_slug_unique" UNIQUE("slug")
 );
 --> statement-breakpoint
@@ -68,7 +83,7 @@ CREATE TABLE "occupations" (
 	"description" text,
 	"aliases" text[] DEFAULT '{}' NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"search_vector" "tsvector" GENERATED ALWAYS AS (setweight(to_tsvector('english', coalesce(title, '')), 'A') || setweight(to_tsvector('english', array_to_string(aliases, ' ')), 'B')) STORED,
+	"search_vector" "tsvector" GENERATED ALWAYS AS (deskbuz_occupation_search_vector(title, aliases)) STORED,
 	CONSTRAINT "occupations_soc_code_unique" UNIQUE("soc_code")
 );
 --> statement-breakpoint

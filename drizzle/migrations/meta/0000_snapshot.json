@@ -1,5 +1,5 @@
 {
-  "id": "280fe532-5c65-444e-9fdf-1786a4c40ae1",
+  "id": "a6af5384-afae-42cd-a7eb-6a2466631f04",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -125,7 +125,7 @@
           "primaryKey": false,
           "notNull": false,
           "generated": {
-            "as": "setweight(to_tsvector('english', coalesce(name, '')), 'A') || setweight(to_tsvector('english', coalesce(industry, '')), 'B') || setweight(to_tsvector('english', coalesce(description, '')), 'C')",
+            "as": "deskbuz_company_search_vector(name, industry, description)",
             "type": "stored"
           }
         }
@@ -408,7 +408,7 @@
           "primaryKey": false,
           "notNull": false,
           "generated": {
-            "as": "setweight(to_tsvector('english', coalesce(title, '')), 'A') || setweight(to_tsvector('english', array_to_string(aliases, ' ')), 'B')",
+            "as": "deskbuz_occupation_search_vector(title, aliases)",
             "type": "stored"
           }
         }

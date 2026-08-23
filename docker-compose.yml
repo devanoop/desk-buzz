@@ -1,0 +1,43 @@
+# One-command local bring-up: `docker compose up --build`
+# Gives you the app at http://localhost:3000 with the committed sample
+# salary dataset already loaded (docker-entrypoint.sh runs migrations +
+# the idempotent seed on every start). Sign up in the app, then run
+#   docker compose exec app npm run grant-admin -- you@example.com
+# to make that account an admin (see README).
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: deskbuz
+      POSTGRES_PASSWORD: deskbuz
+      POSTGRES_DB: deskbuz
+    ports:
+      - "5432:5432"
+    volumes:
+      - deskbuz-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U deskbuz -d deskbuz"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://deskbuz:deskbuz@postgres:5432/deskbuz
+      # Dev-only fixed secret so `docker compose up` works with zero setup.
+      # Never reuse this value anywhere real — generate a fresh one with
+      # `openssl rand -hex 32` for any deployed environment.
+      CSRF_SECRET: 0000000000000000000000000000000000000000000000000000000000000000
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  deskbuz-postgres-data:

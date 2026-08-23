@@ -1,2 +1,0 @@
-ALTER TABLE public.reviews DROP CONSTRAINT IF EXISTS reviews_collection_method_check;
-ALTER TABLE public.reviews ADD CONSTRAINT reviews_collection_method_check CHECK (collection_method IN ('self-service','tele-calling','import','organic'));

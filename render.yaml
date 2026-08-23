@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: deskbuz
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: deskbuz-db
+          property: connectionString
+      - key: CSRF_SECRET
+        generateValue: true
+      - key: NODE_ENV
+        value: production
+
+databases:
+  - name: deskbuz-db
+    plan: starter
+    databaseName: deskbuz
+    user: deskbuz

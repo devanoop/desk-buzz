@@ -14,7 +14,10 @@
     "test:watch": "vitest",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "ingest": "tsx src/modules/ingestion/cli.ts"
+    "ingest": "tsx src/modules/ingestion/cli.ts",
+    "grant-admin": "tsx scripts/grant-admin.ts",
+    "start": "node deploy/server.mjs",
+    "release": "npm run db:migrate && npm run ingest"
   },
   "dependencies": {
     "@node-rs/argon2": "^2.1.0",
@@ -34,6 +37,7 @@
     "clsx": "^2.1.1",
     "csv-parse": "^5.6.0",
     "date-fns": "^4.1.0",
+    "drizzle-kit": "^0.31.1",
     "drizzle-orm": "^0.45.2",
     "exceljs": "^4.4.0",
     "lucide-react": "^0.575.0",
@@ -41,8 +45,10 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "sonner": "^2.0.7",
+    "srvx": "^0.11.16",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.1",
+    "tsx": "^4.19.2",
     "tw-animate-css": "^1.3.4",
     "vite-tsconfig-paths": "^6.0.2",
     "zod": "^3.24.2"
@@ -55,7 +61,6 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
-    "drizzle-kit": "^0.31.1",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.6",
@@ -64,7 +69,6 @@
     "globals": "^15.15.0",
     "nitro": "3.0.260603-beta",
     "prettier": "^3.7.3",
-    "tsx": "^4.19.2",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
     "vite": "^7.3.1",
